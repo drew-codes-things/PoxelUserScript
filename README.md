@@ -63,7 +63,7 @@ The damage multiplier, headshot spoof, and weapon spoof all work by locating a m
 
 ## Disclaimer
 
-This script modifies game client behavior and outgoing network traffic for poxel.io. Using it almost certainly violates poxel.io's Terms of Service and may result in a ban. It is provided for personal/educational use only, as-is, with no warranty. This project is not affiliated with or endorsed by poxel.io.
+This script modifies game client behavior and outgoing network traffic for poxel.io. This is strictly for educational purposes. Using it almost certainly violates poxel.io's Terms of Service and may result in a ban. It is provided for personal/educational use only, as-is, with no warranty. This project is not affiliated with or endorsed by poxel.io.
 
 ## Get the Code
 
