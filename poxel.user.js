@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Poxel.io
 // @namespace    https://poxel.io/
-// @version      1.1.0
+// @version      1.1.1
 // @description  Wall ESP, aim assist, damage multiplier, headshot/weapon spoof (+ discovered gunID list), spacebar spam, FPS boost, anti-AFK, reward bypass, ad blocker, crosshair. INSERT to toggle menu.
 // @match        https://poxel.io/*
 // @grant        none
@@ -694,135 +694,113 @@ function injectStyles() {
     const s = document.createElement('style');
     s.textContent = `
 #pm-menu {
-    --void:   #07090c; --panel:  #0e1116; --raised: #12161c;
-    --line:   #1e252b; --signal: #ff4d2e; --phosphor:#35d67c;
-    --text:   #d7dbde; --dim:    #7d8891; --faint:  #4b545c;
+    --void: #0a0a0b; --panel: rgba(255,255,255,.045); --raised: rgba(255,255,255,.07);
+    --line: rgba(255,255,255,.08); --line-bright: rgba(255,255,255,.14);
+    --signal: #e5383b; --signal-deep: #7a0f14; --signal-soft: #f5c2c3; --phosphor: #4ade80;
+    --text: #ececec; --dim: #a1a1a6; --faint: #6b6b72;
     --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 #pm-menu, #pm-menu * { box-sizing: border-box; }
 #pm-menu {
     position: fixed; top: 40px; left: 40px; width: 660px;
-    background: var(--panel); border: 1px solid var(--line); border-radius: 2px;
-    font-family: var(--mono); font-size: 12px; color: var(--text);
+    background: radial-gradient(120% 70% at 0% 0%, rgba(160,20,28,.38), transparent 60%), linear-gradient(165deg, #1c0608 0%, #0d0b0c 42%, #070708 100%);
+    border: 1px solid var(--line-bright); border-radius: 16px; overflow: hidden;
+    font-family: var(--sans); font-size: 12px; color: var(--text);
     z-index: 99999; display: none; user-select: none;
-    box-shadow: 0 0 0 1px rgba(255,77,46,.06), 0 24px 64px rgba(0,0,0,.85);
-}
-#pm-menu::before {
-    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
-    background:
-        linear-gradient(var(--signal),var(--signal)) top left /10px 2px no-repeat,
-        linear-gradient(var(--signal),var(--signal)) top left /2px 10px no-repeat,
-        linear-gradient(var(--signal),var(--signal)) top right/10px 2px no-repeat,
-        linear-gradient(var(--signal),var(--signal)) top right/2px 10px no-repeat,
-        linear-gradient(var(--signal),var(--signal)) bottom left /10px 2px no-repeat,
-        linear-gradient(var(--signal),var(--signal)) bottom left /2px 10px no-repeat,
-        linear-gradient(var(--signal),var(--signal)) bottom right/10px 2px no-repeat,
-        linear-gradient(var(--signal),var(--signal)) bottom right/2px 10px no-repeat;
+    box-shadow: 0 16px 40px rgba(0,0,0,.45);
 }
 #pm-menu.open { display: block; animation: pm-in .16s ease-out; }
 @keyframes pm-in { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
 
 #pm-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 12px; background: var(--void); border-bottom: 1px solid var(--line); cursor: move;
+    padding: 10px 14px; background: rgba(10,10,11,.55); border-bottom: 1px solid var(--line); cursor: move;
 }
-#pm-title { font-size: 9.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--text); }
-#pm-title::after { content: "_"; color: var(--signal); animation: pm-blink 1.1s steps(1) infinite; }
-@keyframes pm-blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+#pm-title { font-size: 13px; font-weight: 600; color: var(--text); }
 #pm-close {
-    background: transparent; border: 1px solid var(--line); color: var(--dim);
-    font-family: var(--mono); font-size: 10px; padding: 2px 7px;
-    cursor: pointer; border-radius: 2px; transition: border-color .15s, color .15s;
+    background: var(--raised); border: 1px solid var(--line-bright); color: var(--dim);
+    font-family: var(--sans); font-size: 11px; padding: 3px 10px;
+    cursor: pointer; border-radius: 10px; transition: color .15s, background .15s;
 }
-#pm-close:hover { border-color: var(--signal); color: var(--signal); }
+#pm-close:hover { background: rgba(255,255,255,.11); color: var(--text); }
 
 #pm-body {
-    padding: 10px 12px;
-    column-count: 2; column-gap: 16px;
+    padding: 12px 14px;
+    column-count: 2; column-gap: 14px;
     max-height: calc(100vh - 110px); overflow-y: auto;
 }
 
-.pm-group { break-inside: avoid; -webkit-column-break-inside: avoid; margin-bottom: 10px; }
+.pm-group { break-inside: avoid; -webkit-column-break-inside: avoid; margin-bottom: 12px; }
 
 .pm-section {
-    font-size: 8.5px; font-weight: 700; letter-spacing: .14em;
-    text-transform: uppercase; color: var(--faint); margin: 12px 0 6px;
+    font-size: 11px; font-weight: 600; color: var(--signal-soft); margin: 12px 0 6px;
 }
 .pm-section:first-child { margin-top: 0; }
-.pm-section::before { content: "// "; color: var(--signal); }
 
 .pm-card {
-    position: relative; background: var(--raised);
-    border: 1px solid var(--line); border-radius: 2px; overflow: hidden; margin-bottom: 2px;
-}
-.pm-card::before {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background:
-        linear-gradient(var(--signal),var(--signal)) top left /5px 1px no-repeat,
-        linear-gradient(var(--signal),var(--signal)) top left /1px 5px no-repeat,
-        linear-gradient(var(--signal),var(--signal)) bottom right/5px 1px no-repeat,
-        linear-gradient(var(--signal),var(--signal)) bottom right/1px 5px no-repeat;
-    opacity: .25;
+    position: relative; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 2px;
 }
 
 .pm-row {
     display: flex; align-items: center; justify-content: space-between;
     padding: 9px 12px; border-bottom: 1px solid var(--line); transition: background .1s;
 }
-.pm-row:hover { background: rgba(255,77,46,.03); }
+.pm-row:hover { background: rgba(229,56,59,.06); }
 .pm-row-last  { border-bottom: none; }
 .pm-row-left  { display: flex; flex-direction: column; gap: 2px; }
-.pm-name      { font-size: 11.5px; font-weight: 500; color: var(--text); }
-.pm-desc      { font-size: 9px; color: var(--faint); }
+.pm-name      { font-size: 12px; font-weight: 500; color: var(--text); }
+.pm-desc      { font-size: 10px; color: var(--faint); }
 
 .pm-btn {
-    font-family: var(--mono); font-size: 9.5px; font-weight: 700;
-    letter-spacing: .06em; padding: 3px 8px;
-    border: 1px solid var(--signal); border-radius: 2px;
-    color: var(--signal); background: transparent; cursor: pointer;
-    transition: all .15s; white-space: nowrap; flex-shrink: 0;
+    font-family: var(--sans); font-size: 11px; font-weight: 500; padding: 4px 10px;
+    border: 1px solid rgba(229,56,59,.4); border-radius: 10px;
+    color: var(--signal-soft); background: rgba(229,56,59,.14); cursor: pointer;
+    transition: filter .15s, background .15s; white-space: nowrap; flex-shrink: 0;
 }
-.pm-btn::before { content: "["; }
-.pm-btn::after  { content: "]"; }
-.pm-btn:hover, .pm-btn.pm-btn-active { background: var(--signal); color: var(--void); }
+.pm-btn:hover, .pm-btn.pm-btn-active { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--signal), var(--signal-deep)); }
+.pm-btn.pm-btn-active:hover { filter: brightness(1.12); }
 
 .pm-toggle    { display: inline-flex; cursor: pointer; }
 .pm-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
 .pm-lbl {
-    font-family: var(--mono); font-size: 9.5px; font-weight: 700;
-    letter-spacing: .06em; padding: 3px 8px; border: 1px solid var(--line);
-    border-radius: 2px; color: var(--faint); background: transparent;
-    transition: all .15s; min-width: 40px; text-align: center;
+    font-family: var(--sans); font-size: 11px; font-weight: 500; padding: 4px 10px;
+    border: 1px solid var(--line-bright); border-radius: 999px; color: var(--dim); background: var(--raised);
+    transition: all .15s; min-width: 44px; text-align: center;
 }
-.pm-lbl::before { content: "["; }
-.pm-lbl::after  { content: "]"; }
 .pm-toggle input:checked + .pm-lbl {
-    color: var(--signal); border-color: var(--signal);
-    background: rgba(255,77,46,.08); box-shadow: 0 0 8px rgba(255,77,46,.15);
+    color: #fff; border-color: transparent;
+    background: linear-gradient(135deg, var(--signal), var(--signal-deep));
 }
 
 #pm-footer {
-    font-size: 9px; color: var(--faint); letter-spacing: .04em;
-    padding: 8px 12px; border-top: 1px solid var(--line);
+    font-size: 10px; color: var(--faint);
+    padding: 8px 14px; border-top: 1px solid var(--line); background: rgba(10,10,11,.55);
 }
 #pm-menu kbd {
-    background: var(--raised); border: 1px solid var(--line);
-    border-radius: 2px; padding: 1px 5px; font-family: var(--mono); font-size: 9px; color: var(--dim);
+    background: var(--raised); border: 1px solid var(--line-bright);
+    border-radius: 6px; padding: 1px 6px; font-family: var(--mono); font-size: 10px; color: var(--dim);
 }
 
 .pm-toast {
     position: fixed; bottom: 32px; left: 50%;
     transform: translateX(-50%) translateY(10px);
-    background: #0e1116; border: 1px solid #1e252b; color: #d7dbde;
-    font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 11px; font-weight: 600; padding: 8px 18px; border-radius: 2px;
+    background: linear-gradient(165deg, #1c0608 0%, #0d0b0c 60%); border: 1px solid rgba(255,255,255,.14); color: #ececec;
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 12px;
     z-index: 999999; opacity: 0; pointer-events: none;
     transition: opacity .2s ease, transform .2s ease; white-space: nowrap;
-    box-shadow: 0 8px 32px rgba(0,0,0,.7);
+    box-shadow: 0 16px 40px rgba(0,0,0,.45);
 }
 .pm-toast.pm-toast-show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.pm-toast.pm-toast-on   { border-color: #35d67c; color: #35d67c; }
-.pm-toast.pm-toast-warn { border-color: #ff4d2e; color: #ff4d2e; }
+.pm-toast.pm-toast-on   { border-color: rgba(74,222,128,.5); color: #4ade80; }
+.pm-toast.pm-toast-warn { border-color: rgba(229,56,59,.55); color: #f5c2c3; }
+
+@media (prefers-reduced-motion: reduce) {
+    #pm-menu.open { animation: none; }
+    .pm-toast { transition: none; }
+}
 
 body.pm-adblock .banner-container { display: none !important; }
 `;
